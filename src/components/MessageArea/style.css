@@ -1,0 +1,14 @@
+.message-area {
+  height: 400px;
+  width: 400px;
+}
+
+.content {
+  height: 350px;
+  overflow: auto;
+}
+
+.dummy {
+  clear: both;
+  visibility: hidden;
+}

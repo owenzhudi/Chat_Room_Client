@@ -14,13 +14,21 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = { username: '' };
+    socket.on('receive chat message', message => {
+      this.props.addMessage(message);
+    });
   }
 
   componentDidMount() {
     socket.on('get username', username => {
-      if (this.state.username === '') {
+      if (this.state.username === '' || (username.prevName && username.prevName === this.state.username)) {
         this.setState({ username: username.username });
-      }
+        username.message = `You are known as ${username.username}.`;
+        this.props.addMessage(username);  
+      } else if (username.prevName){
+        username.message = `${username.prevName} is now known as ${username.username}.`;
+        this.props.addMessage(username);  
+      }    
     });
   }
 
@@ -37,18 +45,11 @@ class App extends Component {
   };
 
   render() {
-    socket.on('chat message', message => {
-      const {messages} = this.props;
-      if (JSON.stringify(messages[messages.length - 1]) !== JSON.stringify(message)) {  // avoid duplicate addition
-        this.props.addMessage(message);
-      }
-    });
     return (
       <MuiThemeProvider>
         <Grid className="App">
           <Row>
             <h3>Chat Room</h3>
-            <p>You are: {this.state.username}</p>
           </Row>
           <Row>
             <Col>
@@ -65,6 +66,12 @@ class App extends Component {
                 handleSubmit={this.handleSubmit}
               />
             </Col>
+          </Row>
+          <Row>
+            <ul>
+              Chat commands:
+              <li>Change nickname: /nick (username)</li>
+            </ul>
           </Row>
         </Grid>
       </MuiThemeProvider>
