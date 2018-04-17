@@ -1,17 +1,17 @@
 import React from 'react';
+import './style.css';
 
 const Message = ({ message }) => {
   if (message.server) {
     return (
-      <li>
+      <li className="server">
         <div>{message.message}</div>
       </li>
     );
   }
   return (
-    <li>
-      <div>{message.username}</div>
-      <div>{message.message}</div>
+    <li className="client">
+      <div>{message.username}: {message.message}</div>
     </li>
   );
 };

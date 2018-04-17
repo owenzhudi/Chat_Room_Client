@@ -5,6 +5,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { Grid, Row, Col } from 'react-bootstrap';
 import InputArea from '../../components/InputArea';
 import MessageArea from '../../components/MessageArea';
+import ChatRoomList from '../../components/ChatRoomList';
 import * as actions from '../../actions';
 import './App.css';
 
@@ -13,7 +14,10 @@ const socket = socketIOClient('http://localhost:8001/');
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { username: '' };
+    this.state = {
+       username: '',
+       curRoom: ''
+    };
     socket.on('receive chat message', message => {
       this.props.addMessage(message);
     });
@@ -29,6 +33,17 @@ class App extends Component {
         username.message = `${username.prevName} is now known as ${username.username}.`;
         this.props.addMessage(username);  
       }    
+    });
+    socket.on('get chat rooms', chatrooms => {
+      this.props.getChatrooms(chatrooms.chatrooms);
+      if (chatrooms.user === this.state.username) {
+        this.setState({curRoom: chatrooms.curRoom});
+      }
+    });
+    socket.on('clear chat messages', user => {
+      if (user.user === this.state.username) {
+        this.props.clearMessages();
+      }
     });
   }
 
@@ -52,9 +67,17 @@ class App extends Component {
             <h3>Chat Room</h3>
           </Row>
           <Row>
-            <Col>
+            <p>{this.state.curRoom}</p>
+          </Row>
+          <Row>
+            <Col sm={9} md={9} lg={9}>
               <MessageArea
                 messages={this.props.messages}
+              />
+            </Col>
+            <Col sm={3} md={3} lg={3}>
+              <ChatRoomList 
+                chatrooms={this.props.chatrooms}
               />
             </Col>
           </Row>
@@ -70,7 +93,8 @@ class App extends Component {
           <Row>
             <ul>
               Chat commands:
-              <li>Change nickname: /nick (username)</li>
+              <li>Change nickname: /nick [username]</li>
+              <li>join/create room: /join [room name]</li>
             </ul>
           </Row>
         </Grid>
@@ -82,7 +106,8 @@ class App extends Component {
 const mapStateToProps = state => {
   return {
     input: state.input,
-    messages: state.messages
+    messages: state.messages,
+    chatrooms: state.chatrooms
   };
 };
 
@@ -93,6 +118,12 @@ const mapDispatchToProps = dispatch => {
     },
     addMessage: message => {
       dispatch(actions.addMessage(message));
+    },
+    clearMessages: () => {
+      dispatch(actions.clearMessages());
+    },
+    getChatrooms: chatrooms => {
+      dispatch(actions.getChatrooms(chatrooms));
     }
   };
 };

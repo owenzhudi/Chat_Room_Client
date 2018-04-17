@@ -1,6 +1,8 @@
+ul {
+  list-style-type: none;
+}
 .message-area {
   height: 400px;
-  width: 400px;
 }
 
 .content {

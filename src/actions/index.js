@@ -11,3 +11,16 @@ export const addMessage = message => {
     message
   };
 };
+
+export const clearMessages = () => {
+  return {
+    type: 'CLEAR_MESSAGES'
+  };
+};
+
+export const getChatrooms = chatrooms => {
+  return {
+    type: 'GET_CHATROOMS',
+    chatrooms
+  };
+};
